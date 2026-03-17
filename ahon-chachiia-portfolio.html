@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ahon & Chachiia — Photography</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0c0c0b;
+      --surface:  #131312;
+      --border:   #2a2a28;
+      --muted:    #4a4a47;
+      --text:     #d8d4cc;
+      --bright:   #f0ebe3;
+      --accent:   #c8a97e;
+      --accent2:  #8fb8a8;
+      --ff-serif: 'Cormorant Garamond', serif;
+      --ff-mono:  'DM Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--ff-serif);
+      font-weight: 300;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: default;
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    body { cursor: none; }
+    #cursor {
+      position: fixed; z-index: 9999; pointer-events: none;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent); top: 0; left: 0;
+      transform: translate(-50%, -50%);
+      transition: width .2s, height .2s, background .2s;
+      mix-blend-mode: difference;
+    }
+    #cursor-ring {
+      position: fixed; z-index: 9998; pointer-events: none;
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid rgba(200,169,126,.4);
+      top: 0; left: 0;
+      transform: translate(-50%, -50%);
+      transition: all .15s ease-out;
+    }
+    a:hover ~ #cursor, button:hover ~ #cursor { width: 16px; height: 16px; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.6rem 3rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color .4s, backdrop-filter .4s, background .4s;
+    }
+    nav.scrolled {
+      border-color: var(--border);
+      backdrop-filter: blur(16px);
+      background: rgba(12,12,11,.7);
+    }
+    .nav-logo {
+      font-family: var(--ff-serif);
+      font-size: 1.05rem;
+      letter-spacing: .18em;
+      color: var(--bright);
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: var(--ff-mono);
+      font-size: .72rem;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color .25s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ─── HERO ─── */
+    #hero {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      padding: 8rem 3rem 4rem;
+    }
+    .hero-bg {
+      position: absolute; inset: 0; z-index: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 40%, rgba(143,184,168,.07) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 70% at 20% 80%, rgba(200,169,126,.06) 0%, transparent 55%);
+    }
+    .hero-grain {
+      position: absolute; inset: 0; z-index: 1; opacity: .35;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      background-size: 200px;
+    }
+    .hero-inner { position: relative; z-index: 2; text-align: center; max-width: 900px; }
+    .hero-eyebrow {
+      font-family: var(--ff-mono);
+      font-size: .7rem; letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp .8s .2s forwards;
+    }
+    .hero-title {
+      font-size: clamp(3.5rem, 9vw, 8rem);
+      font-weight: 300;
+      line-height: 1.0;
+      color: var(--bright);
+      letter-spacing: -.01em;
+      opacity: 0; animation: fadeUp .9s .4s forwards;
+    }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-tagline {
+      margin-top: 2rem;
+      font-size: clamp(1rem, 2vw, 1.3rem);
+      color: var(--muted);
+      font-style: italic;
+      letter-spacing: .04em;
+      opacity: 0; animation: fadeUp .8s .65s forwards;
+    }
+    .hero-cta {
+      margin-top: 3.5rem;
+      display: inline-flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center;
+      opacity: 0; animation: fadeUp .8s .85s forwards;
+    }
+    .btn {
+      font-family: var(--ff-mono);
+      font-size: .72rem; letter-spacing: .16em;
+      text-transform: uppercase;
+      text-decoration: none;
+      padding: .85rem 2.2rem;
+      border-radius: 0;
+      transition: all .3s;
+      display: inline-block;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      border: 1px solid var(--accent);
+    }
+    .btn-primary:hover { background: transparent; color: var(--accent); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+    .hero-scroll {
+      position: absolute; bottom: 2.5rem; left: 50%; transform: translateX(-50%);
+      z-index: 2;
+      font-family: var(--ff-mono); font-size: .62rem; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--muted);
+      display: flex; flex-direction: column; align-items: center; gap: .8rem;
+      opacity: 0; animation: fadeUp .8s 1.2s forwards;
+    }
+    .scroll-line {
+      width: 1px; height: 40px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s infinite;
+    }
+
+    /* ─── SECTION BASE ─── */
+    section { padding: 7rem 3rem; }
+    .section-label {
+      font-family: var(--ff-mono);
+      font-size: .65rem; letter-spacing: .3em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1.2rem;
+    }
+    .section-title {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 300; line-height: 1.1;
+      color: var(--bright);
+      letter-spacing: -.01em;
+    }
+    .section-title em { font-style: italic; color: var(--accent2); }
+
+    /* ─── ABOUT ─── */
+    #about { background: var(--surface); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      max-width: 1100px;
+      margin: 4rem auto 0;
+    }
+    .about-image-wrap {
+      position: relative;
+    }
+    .about-image {
+      width: 100%; aspect-ratio: 4/5;
+      object-fit: cover;
+      display: block;
+      filter: grayscale(20%) contrast(1.05);
+    }
+    .about-image-placeholder {
+      width: 100%; aspect-ratio: 4/5;
+      background:
+        linear-gradient(135deg, #1e1e1c 0%, #252520 40%, #1a1a18 100%);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .about-image-placeholder::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cdefs%3E%3CradialGradient id='g' cx='50%25' cy='40%25'%3E%3Cstop offset='0' stop-color='%23c8a97e' stop-opacity='.12'/%3E%3Cstop offset='1' stop-color='transparent'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='400' height='500' fill='url(%23g)'/%3E%3Cellipse cx='200' cy='180' rx='70' ry='80' fill='%23383834' opacity='.6'/%3E%3Cellipse cx='200' cy='340' rx='100' ry='60' fill='%23383834' opacity='.4'/%3E%3C/svg%3E") center/cover;
+    }
+    .about-image-placeholder span {
+      font-family: var(--ff-mono); font-size: .65rem;
+      letter-spacing: .2em; color: var(--muted);
+      text-transform: uppercase; position: relative; z-index: 1;
+    }
+    .about-frame-border {
+      position: absolute;
+      top: 1.2rem; left: 1.2rem; right: -1.2rem; bottom: -1.2rem;
+      border: 1px solid var(--border);
+      pointer-events: none; z-index: -1;
+    }
+    .about-text { }
+    .about-text .section-title { margin-bottom: 1.8rem; }
+    .about-body { color: var(--text); font-size: 1.05rem; margin-bottom: 1.4rem; }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; margin-top: 2.8rem;
+      padding-top: 2.8rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat-num {
+      font-size: 2.4rem; font-weight: 300;
+      color: var(--accent); line-height: 1;
+    }
+    .stat-label {
+      font-family: var(--ff-mono); font-size: .62rem;
+      letter-spacing: .15em; text-transform: uppercase;
+      color: var(--muted); margin-top: .4rem;
+    }
+
+    /* ─── GALLERY ─── */
+    #gallery { background: var(--bg); }
+    .gallery-header { max-width: 1100px; margin: 0 auto 3.5rem; }
+    .gallery-filter {
+      display: flex; gap: 1.5rem; flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    .filter-btn {
+      font-family: var(--ff-mono); font-size: .65rem;
+      letter-spacing: .16em; text-transform: uppercase;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); padding: .5rem 1.2rem;
+      cursor: none; transition: all .25s;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent); color: var(--accent);
+    }
+    .gallery-grid {
+      max-width: 1100px; margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto;
+      gap: 1.2rem;
+    }
+    .gallery-item {
+      overflow: hidden; position: relative;
+      cursor: none;
+    }
+    .gallery-item:nth-child(1) { grid-column: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 2; }
+    .gallery-item:nth-child(8) { grid-row: span 2; }
+    .gallery-placeholder {
+      width: 100%;
+      background: var(--surface);
+      position: relative; overflow: hidden;
+      display: flex; align-items: flex-end;
+      transition: transform .55s cubic-bezier(.25,.46,.45,.94);
+    }
+    .gallery-item:nth-child(odd)  .gallery-placeholder { aspect-ratio: 4/3; }
+    .gallery-item:nth-child(even) .gallery-placeholder { aspect-ratio: 3/4; }
+    .gallery-item:nth-child(1)    .gallery-placeholder { aspect-ratio: 16/9; }
+    .gallery-item:nth-child(5)    .gallery-placeholder { aspect-ratio: 16/8; }
+    .gallery-item:nth-child(8)    .gallery-placeholder { aspect-ratio: 3/5; }
+
+    .gallery-placeholder::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at var(--rx, 30%) var(--ry, 40%), var(--rc, rgba(200,169,126,.15)) 0%, transparent 65%),
+        linear-gradient(160deg, #1c1c1a, #111110);
+      transition: opacity .4s;
+    }
+    .gallery-item:nth-child(2) .gallery-placeholder { --rx: 70%; --ry: 60%; --rc: rgba(143,184,168,.15); }
+    .gallery-item:nth-child(3) .gallery-placeholder { --rx: 40%; --ry: 30%; --rc: rgba(180,150,120,.12); }
+    .gallery-item:nth-child(4) .gallery-placeholder { --rx: 60%; --ry: 70%; --rc: rgba(143,184,168,.1);  }
+    .gallery-item:nth-child(6) .gallery-placeholder { --rx: 30%; --ry: 50%; --rc: rgba(200,169,126,.13); }
+    .gallery-item:nth-child(7) .gallery-placeholder { --rx: 65%; --ry: 35%; --rc: rgba(143,184,168,.12); }
+    .gallery-item:nth-child(9) .gallery-placeholder { --rx: 50%; --ry: 60%; --rc: rgba(180,150,120,.14); }
+
+    .gallery-placeholder svg {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      opacity: .06;
+    }
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.75) 0%, transparent 50%);
+      opacity: 0; transition: opacity .4s;
+      display: flex; align-items: flex-end; padding: 1.5rem;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-item:hover .gallery-placeholder { transform: scale(1.03); }
+    .gallery-meta {
+      font-family: var(--ff-mono); font-size: .62rem;
+      letter-spacing: .15em; text-transform: uppercase; color: var(--bright);
+    }
+    .gallery-meta span { display: block; color: var(--muted); margin-top: .2rem; }
+
+    /* ─── CONTACT ─── */
+    #contact { background: var(--surface); }
+    .contact-inner {
+      max-width: 820px; margin: 0 auto;
+    }
+    .contact-intro {
+      font-size: 1.1rem; color: var(--text); margin: 1.8rem 0 3.5rem;
+      max-width: 560px; font-style: italic;
+    }
+    .contact-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    .contact-info { display: flex; flex-direction: column; gap: 2.2rem; }
+    .contact-detail {}
+    .contact-detail-label {
+      font-family: var(--ff-mono); font-size: .62rem;
+      letter-spacing: .22em; text-transform: uppercase; color: var(--accent);
+      margin-bottom: .5rem;
+    }
+    .contact-detail-value {
+      font-size: 1rem; color: var(--text);
+    }
+    .contact-detail-value a { color: inherit; text-decoration: none; transition: color .25s; }
+    .contact-detail-value a:hover { color: var(--accent); }
+    .social-links { display: flex; gap: 1rem; margin-top: .5rem; flex-wrap: wrap; }
+    .social-link {
+      font-family: var(--ff-mono); font-size: .62rem;
+      letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); text-decoration: none;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color .25s, border-color .25s;
+    }
+    .social-link:hover { color: var(--accent); border-color: var(--accent); }
+
+    /* ─── FORM ─── */
+    .contact-form { display: flex; flex-direction: column; gap: 1.4rem; }
+    .form-group { display: flex; flex-direction: column; gap: .5rem; }
+    .form-label {
+      font-family: var(--ff-mono); font-size: .62rem;
+      letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
+    }
+    .form-input, .form-textarea, .form-select {
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--bright); font-family: var(--ff-serif);
+      font-size: .95rem; padding: .85rem 1rem;
+      outline: none; width: 100%;
+      transition: border-color .25s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: var(--accent);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--muted); }
+    .form-textarea { resize: vertical; min-height: 130px; }
+    .form-select { cursor: none; }
+    .form-select option { background: var(--surface); }
+    .form-submit {
+      font-family: var(--ff-mono); font-size: .72rem; letter-spacing: .18em;
+      text-transform: uppercase;
+      background: var(--accent); color: var(--bg);
+      border: 1px solid var(--accent);
+      padding: 1rem 2.5rem; cursor: none;
+      transition: all .3s; align-self: flex-start;
+      margin-top: .5rem;
+    }
+    .form-submit:hover { background: transparent; color: var(--accent); }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 3rem;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-name {
+      font-family: var(--ff-serif); font-size: .9rem;
+      letter-spacing: .18em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .footer-copy {
+      font-family: var(--ff-mono); font-size: .6rem;
+      letter-spacing: .12em; color: var(--border);
+    }
+
+    /* ─── DIVIDER ─── */
+    .ornament {
+      display: flex; align-items: center; gap: 1.5rem;
+      max-width: 1100px; margin: 0 auto 3.5rem;
+    }
+    .ornament-line { flex: 1; height: 1px; background: var(--border); }
+    .ornament-mark {
+      font-family: var(--ff-mono); font-size: .6rem;
+      letter-spacing: .3em; color: var(--muted); text-transform: uppercase;
+    }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: .4; }
+      50%       { opacity: 1; }
+    }
+    .reveal {
+      opacity: 0; transform: translateY(32px);
+      transition: opacity .7s ease, transform .7s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: .1s; }
+    .reveal-delay-2 { transition-delay: .2s; }
+    .reveal-delay-3 { transition-delay: .35s; }
+
+    /* ─── HAMBURGER MENU ─── */
+    .nav-toggle {
+      display: none;
+      flex-direction: column; gap: 5px;
+      background: none; border: none;
+      cursor: none; padding: .4rem;
+    }
+    .nav-toggle span {
+      display: block; width: 22px; height: 1px;
+      background: var(--text); transition: all .3s;
+    }
+    .nav-toggle.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1.4rem 1.8rem; }
+      .nav-links { display: none; flex-direction: column; gap: 1.5rem;
+        position: fixed; inset: 0; background: var(--bg);
+        align-items: center; justify-content: center; z-index: 99;
+      }
+      .nav-links.open { display: flex; }
+      .nav-links a { font-size: 1rem; }
+      .nav-toggle { display: flex; z-index: 101; }
+      section { padding: 5rem 1.8rem; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .about-image-wrap { max-width: 420px; margin: 0 auto; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+      .gallery-item:nth-child(1) { grid-column: span 2; }
+      .gallery-item:nth-child(5) { grid-column: span 1; }
+      .gallery-item:nth-child(8) { grid-row: span 1; }
+      .contact-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; align-items: flex-start; }
+    }
+
+    @media (max-width: 560px) {
+      .hero-title { font-size: clamp(2.8rem, 12vw, 4rem); }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .gallery-item:nth-child(1),
+      .gallery-item:nth-child(5) { grid-column: span 1; }
+      .about-stats { grid-template-columns: repeat(3, 1fr); }
+      .hero-cta { flex-direction: column; align-items: center; }
+      #hero { padding: 8rem 1.8rem 4rem; }
+      .form-submit { width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cursor"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#hero" class="nav-logo">A & C</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about" onclick="closeMenu()">About</a></li>
+      <li><a href="#gallery" onclick="closeMenu()">Gallery</a></li>
+      <li><a href="#contact" onclick="closeMenu()">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grain"></div>
+    <div class="hero-inner">
+      <p class="hero-eyebrow">Freelance Photography · Est. 2018</p>
+      <h1 class="hero-title">Ahon &amp;<br><em>Chachiia</em></h1>
+      <p class="hero-tagline">We don't capture moments — we distill them into light.</p>
+      <div class="hero-cta">
+        <a href="#gallery" class="btn btn-primary">View Work</a>
+        <a href="#contact" class="btn btn-ghost">Get in Touch</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-grid">
+      <div class="about-image-wrap reveal">
+        <div class="about-image-placeholder">
+          <svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="pg" cx="50%" cy="40%">
+                <stop offset="0" stop-color="#c8a97e" stop-opacity=".25"/>
+                <stop offset="1" stop-color="transparent"/>
+              </radialGradient>
+            </defs>
+            <rect width="400" height="500" fill="url(#pg)"/>
+            <ellipse cx="200" cy="175" rx="75" ry="88" fill="#3a3a36" opacity=".7"/>
+            <ellipse cx="200" cy="350" rx="110" ry="70" fill="#343430" opacity=".5"/>
+            <line x1="60" y1="60" x2="340" y2="60" stroke="#c8a97e" stroke-width=".5" opacity=".3"/>
+            <line x1="60" y1="440" x2="340" y2="440" stroke="#c8a97e" stroke-width=".5" opacity=".3"/>
+          </svg>
+          <span>Portrait placeholder</span>
+        </div>
+        <div class="about-frame-border"></div>
+      </div>
+      <div class="about-text">
+        <p class="section-label reveal">About us</p>
+        <h2 class="section-title reveal reveal-delay-1">Where silence<br>becomes <em>image.</em></h2>
+        <p class="about-body reveal reveal-delay-2">
+          Ahon and Chachiia are a duo whose work lives at the intersection of documentary truth and visual poetry. Based between Guwahati and the high plains of Meghalaya, they travel with patience — waiting for the light that exists only once.
+        </p>
+        <p class="about-body reveal reveal-delay-2">
+          Their approach is quiet, unhurried, and deeply collaborative. Whether shooting editorial portraiture, landscape, or intimate weddings, every frame is an act of listening.
+        </p>
+        <div class="about-stats reveal reveal-delay-3">
+          <div>
+            <div class="stat-num">340+</div>
+            <div class="stat-label">Projects</div>
+          </div>
+          <div>
+            <div class="stat-num">12</div>
+            <div class="stat-label">Countries</div>
+          </div>
+          <div>
+            <div class="stat-num">7yr</div>
+            <div class="stat-label">Together</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="gallery-header reveal">
+      <p class="section-label">Selected Work</p>
+      <h2 class="section-title">Light &amp; <em>shadow</em></h2>
+      <div class="gallery-filter">
+        <button class="filter-btn active">All</button>
+        <button class="filter-btn">Portrait</button>
+        <button class="filter-btn">Landscape</button>
+        <button class="filter-btn">Editorial</button>
+        <button class="filter-btn">Wedding</button>
+      </div>
+    </div>
+    <div class="gallery-grid">
+
+      <!-- Item 1 — wide -->
+      <div class="gallery-item reveal">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8fb8a8" stop-opacity=".12"/><stop offset="1" stop-color="#c8a97e" stop-opacity=".08"/></linearGradient></defs>
+            <rect width="800" height="450" fill="url(#g1)"/>
+            <rect x="0" y="300" width="800" height="150" fill="#0e0e0c" opacity=".5"/>
+            <ellipse cx="400" cy="200" rx="180" ry="140" fill="#252520" opacity=".6"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Valley Mist, Meghalaya<span>Landscape · 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 2 -->
+      <div class="gallery-item reveal reveal-delay-1">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 533" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g2" cx="65%" cy="35%"><stop offset="0" stop-color="#c8a97e" stop-opacity=".18"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="533" fill="url(#g2)"/>
+            <ellipse cx="210" cy="200" rx="80" ry="95" fill="#333330" opacity=".7"/>
+            <ellipse cx="210" cy="370" rx="110" ry="60" fill="#2d2d2a" opacity=".5"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Afternoon Light<span>Portrait · 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 3 -->
+      <div class="gallery-item reveal">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g3" cx="40%" cy="30%"><stop offset="0" stop-color="#8fb8a8" stop-opacity=".15"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="300" fill="url(#g3)"/>
+            <rect x="0" y="180" width="400" height="120" fill="#0e0e0c" opacity=".4"/>
+            <rect x="150" y="50" width="100" height="160" fill="#282825" opacity=".6"/>
+            <rect x="230" y="80" width="60" height="120" fill="#222220" opacity=".4"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Urban Geometry<span>Editorial · 2023</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 4 -->
+      <div class="gallery-item reveal reveal-delay-1">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 533" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g4" cx="60%" cy="70%"><stop offset="0" stop-color="#8fb8a8" stop-opacity=".14"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="533" fill="url(#g4)"/>
+            <ellipse cx="200" cy="200" rx="75" ry="85" fill="#303030" opacity=".65"/>
+            <ellipse cx="200" cy="360" rx="120" ry="65" fill="#2a2a28" opacity=".5"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">River Ritual<span>Documentary · 2023</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 5 — wide -->
+      <div class="gallery-item reveal">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="g5" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#c8a97e" stop-opacity=".1"/><stop offset="1" stop-color="#8fb8a8" stop-opacity=".1"/></linearGradient></defs>
+            <rect width="800" height="400" fill="url(#g5)"/>
+            <ellipse cx="250" cy="200" rx="160" ry="100" fill="#262622" opacity=".6"/>
+            <ellipse cx="600" cy="180" rx="130" ry="90" fill="#1e1e1c" opacity=".5"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Golden Hour, Assam<span>Landscape · 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 6 -->
+      <div class="gallery-item reveal reveal-delay-1">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g6" cx="30%" cy="50%"><stop offset="0" stop-color="#c8a97e" stop-opacity=".18"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="300" fill="url(#g6)"/>
+            <ellipse cx="160" cy="150" rx="70" ry="80" fill="#2e2e2b" opacity=".6"/>
+            <ellipse cx="160" cy="260" rx="100" ry="40" fill="#252520" opacity=".4"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Quiet Ceremony<span>Wedding · 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 7 -->
+      <div class="gallery-item reveal">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g7" cx="65%" cy="35%"><stop offset="0" stop-color="#8fb8a8" stop-opacity=".12"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="300" fill="url(#g7)"/>
+            <rect x="0" y="150" width="400" height="150" fill="#111110" opacity=".4"/>
+            <ellipse cx="260" cy="130" rx="80" ry="60" fill="#282825" opacity=".55"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Still Life No.7<span>Editorial · 2023</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 8 — tall -->
+      <div class="gallery-item reveal reveal-delay-2">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 600" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g8" cx="50%" cy="40%"><stop offset="0" stop-color="#c8a97e" stop-opacity=".16"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="600" fill="url(#g8)"/>
+            <ellipse cx="200" cy="220" rx="78" ry="92" fill="#333330" opacity=".7"/>
+            <ellipse cx="200" cy="410" rx="115" ry="68" fill="#2b2b28" opacity=".5"/>
+            <line x1="200" y1="0" x2="200" y2="600" stroke="#c8a97e" stroke-width=".5" opacity=".06"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">The Weavers<span>Documentary · 2024</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Item 9 -->
+      <div class="gallery-item reveal reveal-delay-1">
+        <div class="gallery-placeholder">
+          <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+            <defs><radialGradient id="g9" cx="50%" cy="60%"><stop offset="0" stop-color="#8fb8a8" stop-opacity=".13"/><stop offset="1" stop-color="transparent"/></radialGradient></defs>
+            <rect width="400" height="300" fill="url(#g9)"/>
+            <ellipse cx="200" cy="130" rx="85" ry="75" fill="#2f2f2c" opacity=".6"/>
+            <ellipse cx="200" cy="250" rx="130" ry="48" fill="#252520" opacity=".4"/>
+          </svg>
+          <div class="gallery-overlay">
+            <div class="gallery-meta">Dusk Silhouette<span>Landscape · 2023</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-inner">
+      <p class="section-label reveal">Contact</p>
+      <h2 class="section-title reveal reveal-delay-1">Let's make<br>something <em>beautiful.</em></h2>
+      <p class="contact-intro reveal reveal-delay-2">Whether it's a commission, a collaboration, or just a conversation — we'd love to hear from you.</p>
+
+      <div class="contact-grid">
+        <div class="contact-info reveal">
+          <div class="contact-detail">
+            <div class="contact-detail-label">Email</div>
+            <div class="contact-detail-value"><a href="mailto:hello@ahonchachiia.com">hello@ahonchachiia.com</a></div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-label">Location</div>
+            <div class="contact-detail-value">Guwahati, Assam &amp; Northeast India</div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-label">Available for</div>
+            <div class="contact-detail-value">Weddings · Portraits · Editorial · Landscape</div>
+          </div>
+          <div class="contact-detail">
+            <div class="contact-detail-label">Follow</div>
+            <div class="contact-detail-value">
+              <div class="social-links">
+                <a href="#" class="social-link">Instagram</a>
+                <a href="#" class="social-link">Behance</a>
+                <a href="#" class="social-link">VSCO</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form class="contact-form reveal reveal-delay-1" onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label class="form-label" for="name">Full Name</label>
+            <input class="form-input" type="text" id="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="email">Email Address</label>
+            <input class="form-input" type="email" id="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="project">Project Type</label>
+            <select class="form-select" id="project">
+              <option value="">Select a category</option>
+              <option>Wedding Photography</option>
+              <option>Portrait Session</option>
+              <option>Editorial / Commercial</option>
+              <option>Landscape / Travel</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="message">Message</label>
+            <textarea class="form-textarea" id="message" placeholder="Tell us about your vision…" required></textarea>
+          </div>
+          <button type="submit" class="form-submit" id="submitBtn">Send Message →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span class="footer-name">Ahon &amp; Chachiia Photography</span>
+    <span class="footer-copy">© 2025 — All rights reserved</span>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring   = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+    function animateCursor() {
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+      rx += (mx - rx) * .12;
+      ry += (my - ry) * .12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+    document.querySelectorAll('a, button').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.style.width = '16px'; cursor.style.height = '16px'; ring.style.width = '56px'; ring.style.height = '56px'; });
+      el.addEventListener('mouseleave', () => { cursor.style.width = '8px';  cursor.style.height = '8px';  ring.style.width = '36px'; ring.style.height = '36px'; });
+    });
+
+    // Nav scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // Hamburger
+    const toggle = document.getElementById('navToggle');
+    const links  = document.getElementById('navLinks');
+    toggle.addEventListener('click', () => {
+      toggle.classList.toggle('open');
+      links.classList.toggle('open');
+    });
+    function closeMenu() {
+      toggle.classList.remove('open');
+      links.classList.remove('open');
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+    }, { threshold: .12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Gallery filter (UI only)
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    // Form submit
+    function handleSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.textContent = 'Sent ✓';
+      btn.style.background = 'var(--accent2)';
+      btn.style.borderColor = 'var(--accent2)';
+      btn.style.color = 'var(--bg)';
+      btn.disabled = true;
+    }
+  </script>
+</body>
+</html>
